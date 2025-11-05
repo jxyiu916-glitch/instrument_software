@@ -41,6 +41,8 @@ class BarcodeQualityMetrics:
     error_correction_stats: Dict[str, int]
     warnings: List[str] = field(default_factory=list)
     quality_distribution: Dict[int, int] = field(default_factory=dict)
+    low_quality_barcodes: int = 0
+    low_quality_fraction: float = 0.0
 
 def analyze_cell_barcodes(
     barcodes: List[str],
@@ -128,7 +130,13 @@ def analyze_cell_barcodes(
         warnings.append(
             f"Low cell count detected: {cell_count}"
         )
-    
+    # Compute low-quality barcode stats (simple heuristic based on 'N' fraction)
+    low_quality_count = 0
+    for bc in barcodes:
+        if len(bc) > 0 and bc.count('N') / len(bc) > 0.5:
+            low_quality_count += 1
+    low_quality_fraction = low_quality_count / total_barcodes if total_barcodes > 0 else 0.0
+
     return BarcodeQualityMetrics(
         total_barcodes=total_barcodes,
         valid_barcodes=len(valid_bcs),
@@ -140,7 +148,9 @@ def analyze_cell_barcodes(
         complexity_score=complexity,
         error_correction_stats=correction_stats,
         warnings=warnings,
-        quality_distribution=qual_dist
+        quality_distribution=qual_dist,
+        low_quality_barcodes=low_quality_count,
+        low_quality_fraction=low_quality_fraction,
     )
 
 def correct_cell_barcodes(

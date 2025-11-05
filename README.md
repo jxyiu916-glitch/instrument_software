@@ -1,11 +1,42 @@
-# Interview Mini-Project Template
+# Staff-Level Engineering Project Collection
 
-This repository is a minimal, interview-style project scaffold designed for practice and timed miniprojects.
+## About 10x Genomics
 
-Goals:
-- Small, well-scoped code under `src/` with a CLI entrypoint.
-- Unit tests under `tests/` and a small example dataset under `data/`.
-- Optional Dockerfile, GitHub Actions CI, and a benchmarking script.
+At 10x Genomics, accelerating our understanding of biology is more than a mission for us. It is a commitment. This is the century of biology, and the breakthroughs we make now have the potential to change the world.
+
+We enable scientists to advance their research, allowing them to address scientific questions they did not even know they could ask. Our tools have enabled fundamental discoveries across biology including cancer, immunology, and neuroscience.
+
+Our teams are empowered and encouraged to follow their passions, pursue new ideas, and perform at their best in an inclusive and dynamic environment. We know that behind every scientific breakthrough, there is a deep infrastructure of talented people driving the life sciences industry and making it possible for scientists and clinicians to make new strides. We are dedicated to finding the very best person for every aspect of our work because the innovations and discoveries that we enable together will lead to better technologies, better treatments, and a better future.
+
+## Project Overview
+
+This repository demonstrates staff-level engineering capabilities through a collection of interconnected projects focusing on instrumentation control, distributed systems, and real-time processing. Our implementation reflects our commitment to excellence and innovation in advancing biological research through cutting-edge technology.
+
+## Key Components
+
+### Control Systems (`projects/control/`)
+- Async control loops with real-time guarantees
+- Thread-safe sensor interfaces
+- Hardware abstraction layer
+- Firmware management system
+
+### Fleet Diagnostics (`projects/fleet_diagnostics/`)
+- Distributed consensus implementation
+- Fleet-wide telemetry collection
+- Cluster management
+- Real-time monitoring
+
+### Integration Testing (`projects/tests/`)
+- System-level test scenarios
+- Performance benchmarking
+- Fault tolerance testing
+- Timing verification
+
+### Documentation (`docs/`)
+- Team guidelines and processes
+- Architecture documentation
+- Onboarding guide
+- Code review standards
 
 Quick start (macOS / zsh):
 
