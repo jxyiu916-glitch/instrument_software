@@ -1,0 +1,12 @@
+This scaffold was generated with these choices (user answered YES to all):
+- Language: Python
+- CLI-first with optional tiny HTTP API
+- Docker included
+- Example dataset included
+- Tests included
+- Type checking (mypy) included
+- GitHub Actions CI included
+- Simple benchmark script included
+- HTTP API optional placeholder (not scaffolded by default)
+- Jupyter notebook placeholder included
+- In-memory-only datastore
