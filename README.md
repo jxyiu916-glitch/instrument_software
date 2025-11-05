@@ -24,4 +24,11 @@ pytest -q
 python -m src.cli data/example_small.json
 ```
 
+Run the API locally (after installing deps into `.venv`):
+
+```bash
+make run-api
+# then open http://127.0.0.1:8000/docs to try the /process endpoint
+```
+
 If you want additional scaffolding (HTTP API, React UI, or more advanced benchmarks), answer the follow-up questions and I will add them.
