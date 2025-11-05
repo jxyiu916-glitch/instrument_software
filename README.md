@@ -1,12 +1,5 @@
 # Staff-Level Engineering Project Collection
 
-## About 10x Genomics
-
-At 10x Genomics, accelerating our understanding of biology is more than a mission for us. It is a commitment. This is the century of biology, and the breakthroughs we make now have the potential to change the world.
-
-We enable scientists to advance their research, allowing them to address scientific questions they did not even know they could ask. Our tools have enabled fundamental discoveries across biology including cancer, immunology, and neuroscience.
-
-Our teams are empowered and encouraged to follow their passions, pursue new ideas, and perform at their best in an inclusive and dynamic environment. We know that behind every scientific breakthrough, there is a deep infrastructure of talented people driving the life sciences industry and making it possible for scientists and clinicians to make new strides. We are dedicated to finding the very best person for every aspect of our work because the innovations and discoveries that we enable together will lead to better technologies, better treatments, and a better future.
 
 ## Project Overview
 
