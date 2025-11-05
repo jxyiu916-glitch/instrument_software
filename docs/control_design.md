@@ -3,19 +3,26 @@ Control mini-project design notes
 
 Goal
 ----
-Implement a small control-loop simulator (2nd-order plant) and a PID controller with a simple tuner.
+Implement a small control-loop simulator (2nd-order plant) and a PID controller with two tuning approaches:
+1. Simple grid search (interview-friendly)
+2. Nelder-Mead optimization (more efficient)
 
 Design choices
 --------------
 - Plant: represented as a second-order mass-spring-damper ODE discretized using forward Euler for simplicity and deterministic reproducibility.
 - Controller: classic PID with anti-windup via integrator clamping.
-- Tuner: deterministic grid search to find a candidate set of gains that meet soft performance targets. Grid search is simple and interview-friendly; in production you'd use model-based tuning or optimization.
+- Tuners: 
+  1. Grid search: deterministic scan of the gain space, simple but slow
+  2. Nelder-Mead: derivative-free optimization that usually finds better gains faster
 
 Deliverables
 ------------
-- `src/control/core.py`: Plant, PID, simulate(), step_metrics(), tune_pid_grid()
-- `tests/test_control.py`: smoke tests and a tuner validation test
+- `src/control/core.py`: Plant, PID, simulate(), step_metrics(), tune_pid_grid(), tune_pid_neldermead()
+- `tests/test_control.py`: smoke tests and tuner validation tests
+- `scripts/plot_tuning.py`: visualizes step responses for both tuners
+- `scripts/bench_control.py`: compares tuner performance
 - `docs/control_design.md`: short design note (this file)
+- `cpp/README.md`: notes on C++ port (future)
 
 Tradeoffs
 ---------
@@ -24,6 +31,7 @@ Tradeoffs
 
 Next steps (if extending)
 -------------------------
-- Provide a C++ implementation of the Plant and PID for performance-critical components.
+- Complete the C++ implementation (sketched in cpp/) for performance-critical components.
 - Add CI benchmarks to check performance regression.
-- Add visualization (notebook) for step responses and Bode plots.
+- Add Bode plot visualization to understand frequency response.
+- Consider model-based tuning methods (pole placement, Ziegler-Nichols).

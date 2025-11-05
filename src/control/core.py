@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Tuple, List
+from typing import Tuple, List, Callable, Optional
 
 import math
 import numpy as np
@@ -121,3 +121,108 @@ def tune_pid_grid(plant: Plant, setpoint: float = 1.0, t_final: float = 5.0, dt:
                     best = pid
                     best_metrics = {"Kp": Kp, "Ki": Ki, "Kd": Kd, "overshoot": overshoot, "settling": settling, "score": score}
     return best, best_metrics
+
+
+def _score_pid(plant: Plant, pid: PID, setpoint: float, t_final: float, dt: float, settling_target: float) -> float:
+    t, y, _ = simulate(plant, pid, setpoint, t_final=t_final, dt=dt)
+    overshoot, settling = step_metrics(t, y, setpoint)
+    score = overshoot + max(0.0, (settling - settling_target) / max(1.0, settling_target))
+    score += 0.001 * (abs(pid.Kp) + abs(pid.Ki) + abs(pid.Kd))
+    return score
+
+
+def tune_pid_neldermead(plant: Plant,
+                        setpoint: float = 1.0,
+                        t_final: float = 5.0,
+                        dt: float = 0.002,
+                        x0: Optional[List[float]] = None,
+                        maxiter: int = 200,
+                        tol: float = 1e-3,
+                        settling_target: float = 2.0) -> Tuple[PID, dict]:
+    """Simple Nelder-Mead optimizer to tune PID gains.
+
+    This lightweight implementation is interview-friendly and avoids external deps.
+    It optimizes {Kp,Ki,Kd} starting from x0 (or a heuristic) to minimize the score.
+    """
+    # initial guess
+    if x0 is None:
+        x0 = [1.0, 0.1, 0.01]
+
+    # Initialize simplex: x0 and small perturbations
+    n = 3
+    simplex = [list(x0)]
+    scale = [max(1e-2, abs(v) * 0.1) for v in x0]
+    for i in range(n):
+        xi = list(x0)
+        xi[i] += scale[i]
+        simplex.append(xi)
+
+    def eval_x(x: List[float]) -> float:
+        pid = PID(x[0], x[1], x[2])
+        return _score_pid(plant, pid, setpoint, t_final, dt, settling_target)
+
+    # Evaluate simplex
+    vals = [eval_x(x) for x in simplex]
+
+    it = 0
+    while it < maxiter:
+        # order
+        idx = sorted(range(len(simplex)), key=lambda i: vals[i])
+        simplex = [simplex[i] for i in idx]
+        vals = [vals[i] for i in idx]
+        best_val = vals[0]
+        worst_val = vals[-1]
+        second_worst_val = vals[-2]
+
+        # termination
+        if max(abs(best_val - v) for v in vals) < tol:
+            break
+
+        # centroid of all but worst
+        centroid = [0.0] * n
+        for s in simplex[:-1]:
+            for j in range(n):
+                centroid[j] += s[j]
+        for j in range(n):
+            centroid[j] /= (len(simplex) - 1)
+
+        # reflection
+        alpha = 1.0
+        xr = [centroid[j] + alpha * (centroid[j] - simplex[-1][j]) for j in range(n)]
+        fr = eval_x(xr)
+        if fr < best_val:
+            # expansion
+            gamma = 2.0
+            xe = [centroid[j] + gamma * (xr[j] - centroid[j]) for j in range(n)]
+            fe = eval_x(xe)
+            if fe < fr:
+                simplex[-1] = xe
+                vals[-1] = fe
+            else:
+                simplex[-1] = xr
+                vals[-1] = fr
+        elif fr < second_worst_val:
+            simplex[-1] = xr
+            vals[-1] = fr
+        else:
+            # contraction
+            rho = 0.5
+            xc = [centroid[j] + rho * (simplex[-1][j] - centroid[j]) for j in range(n)]
+            fc = eval_x(xc)
+            if fc < vals[-1]:
+                simplex[-1] = xc
+                vals[-1] = fc
+            else:
+                # shrink
+                sigma = 0.5
+                for i in range(1, len(simplex)):
+                    simplex[i] = [simplex[0][j] + sigma * (simplex[i][j] - simplex[0][j]) for j in range(n)]
+                    vals[i] = eval_x(simplex[i])
+        it += 1
+
+    best = simplex[0]
+    pid = PID(best[0], best[1], best[2])
+    t, y, _ = simulate(plant, pid, setpoint, t_final=t_final, dt=dt)
+    overshoot, settling = step_metrics(t, y, setpoint)
+    metrics = {"Kp": pid.Kp, "Ki": pid.Ki, "Kd": pid.Kd, "overshoot": overshoot, "settling": settling, "score": _score_pid(plant, pid, setpoint, t_final, dt, settling_target), "iterations": it}
+    return pid, metrics
